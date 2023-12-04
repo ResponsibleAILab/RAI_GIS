@@ -1,0 +1,36 @@
+import pandas as pd
+import plotly.express as px
+from scholarly import scholarly
+
+def search_and_get_docs(query):
+    search_query = scholarly.search_pubs(query)
+
+    # Initialize a dictionary to store publication counts per year
+    publication_years = {}
+
+    for i, result in enumerate(search_query):
+        publication_year = result['bib'].get('pub_year', 'N/A')
+
+        # Count the publications for each year
+        if publication_year != 'N/A':
+            publication_years[publication_year] = publication_years.get(publication_year, 0) + 1
+
+    # Create a combined data structure for creating the DataFrame
+    combined_data = {'Year': sorted(set(publication_years.keys()))}
+    combined_data[query] = [publication_years.get(year, 0) for year in combined_data['Year']]
+
+    # Create a DataFrame
+    df = pd.DataFrame(combined_data)
+
+    # Replace NaN values with 0
+    df = df.fillna(0)
+
+    # Create the line chart using plotly express
+    fig = px.line(df, x='Year', y=query, labels={'Year': 'Year', 'value': 'Number of Publications'},
+                  title=f'Year-wise Trend of Publications for - {query}')
+
+    # Show the figure
+    fig.show()
+
+# Example usage
+search_and_get_docs("Responsible AI")

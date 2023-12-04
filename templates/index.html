@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsible AI</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/umpirsky/country-list@3.0.2/data/en/country.json"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4285f4;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        nav {
+            background-color: #f2f2f2;
+            padding: 10px;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            text-align: center;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 10px;
+        }
+
+        .main-content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .search-box {
+            margin-top: 20px;
+        }
+
+        .results {
+            text-align: left;
+        }
+
+        .result-item {
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin: 10px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Responsible AI BGIS
+    </header>
+    <nav>
+        <ul>
+            <li>Home</li>
+            <li>Trending</li>
+        </ul>
+    </nav>
+    <div class="main-content">
+        <h1>Search Trends</h1>
+        <div class="search-box">
+            <span id="Rai_inputContainer">
+                <input type="text" class="rai_search" id = "rai_search_1" >
+                <input type="text" class="rai_search" id ="rai_search_2" >
+            </span>
+            <button type="button" onclick="rai_search_btn()" style="color: #818181;background-color: #d1dff4;border-color: #cfe8ff;"class="btn btn-primary btn-bordered add-more">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
+            <br>
+            <input type="date" id="datepicker" name="datepicker">
+            <i class="bi bi-search rai_search_btn" id="addInputButton" onclick="sendData()"></i>
+        </div>
+        <div class="results">
+            <div class="result-item">
+                <h2>Search Term 1</h2>
+                <p>Citations: 100</p>
+                <p>Search Interest Over Time:</p>
+                <!-- <img src="line_chart.png" alt="Line Chart"> -->
+            </div>
+            <div class="result-item">
+                <h2>Search Term 2</h2>
+                <p>Citations: 50</p>
+                <p>Search Interest Over Time:</p>
+                <!-- <img src="Barchart.png" alt="Line Chart"> -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
