@@ -52,20 +52,20 @@ def scrape_google_scholar(query, start_date, end_date, step_days=7):
 
 #--------------------------- To webscrapping the google scholar--------------------
 
-@app.route('/api/google_scholar_web', methods=['POST'])
-def scrape_google_scholar(query):
-    response_htmlcontent = GetHtmlCon(query)
-    # Create a BeautifulSoup object
-    soup = BeautifulSoup(response_htmlcontent, 'html.parser')
-    # Extract information (for example, the publication titles and years)
-    publications = []
-    results = soup.find_all('div', class_='gs_ri')
-    for result in results:
-        title = result.find('h3', class_='gs_rt').get_text()
-        year_match = re.search(r'\d{4}', result.get_text())  # Assuming years are in the format 'YYYY'
-        year = year_match.group() if year_match else 'Year not found'
-        publications.append((title, year))
-    return publications
+# @app.route('/api/google_scholar_web', methods=['POST'])
+# def scrape_google_scholar(query):
+#     response_htmlcontent = GetHtmlCon(query)
+#     # Create a BeautifulSoup object
+#     soup = BeautifulSoup(response_htmlcontent, 'html.parser')
+#     # Extract information (for example, the publication titles and years)
+#     publications = []
+#     results = soup.find_all('div', class_='gs_ri')
+#     for result in results:
+#         title = result.find('h3', class_='gs_rt').get_text()
+#         year_match = re.search(r'\d{4}', result.get_text())  # Assuming years are in the format 'YYYY'
+#         year = year_match.group() if year_match else 'Year not found'
+#         publications.append((title, year))
+#     return publications
 
 def GetHtmlCon(query):
     headers = {
@@ -96,21 +96,21 @@ def GetHtmlCon(query):
     data[query] = year_count
 
 # Example queries:
-queries = ['Responsible AI using Geographic Instruction', 'C-programming using gaming']  # Change this to your desired search queries
-data = {}
-# Combine data for all queries into a DataFrame
-combined_data = {'Year': sorted(set(year for year_count in data.values() for year in year_count.keys()))}
-for query in queries:
-    combined_data[query] = [data[query].get(year, 0) for year in combined_data['Year']]
+# queries = ['Responsible AI using Geographic Instruction', 'C-programming using gaming']  # Change this to your desired search queries
+# data = {}
+# # Combine data for all queries into a DataFrame
+# combined_data = {'Year': sorted(set(year for year_count in data.values() for year in year_count.keys()))}
+# for query in queries:
+#     combined_data[query] = [data[query].get(year, 0) for year in combined_data['Year']]
 
-df = pd.DataFrame(combined_data)
+# df = pd.DataFrame(combined_data)
 
-# Create a line chart using Plotly Express
-fig = px.line(df, x='Year', y=queries, labels={'Year': 'Year', 'value': 'Number of Publications'},
-             title=f'Year-wise Trend of Publications for -  {", ".join(queries)}')
+# # Create a line chart using Plotly Express
+# fig = px.line(df, x='Year', y=queries, labels={'Year': 'Year', 'value': 'Number of Publications'},
+#              title=f'Year-wise Trend of Publications for -  {", ".join(queries)}')
 
-# Show the interactive chart
-fig.show()
+# # Show the interactive chart
+# fig.show()
    
 #----------------------------To get the value from the user------------------------
 
@@ -140,7 +140,6 @@ def home():
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     app.run(debug=True)
 
