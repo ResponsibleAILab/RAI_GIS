@@ -94,7 +94,7 @@ def GetResultsArix(search_term, start_date, end_date, proxyy):
     if div_results:
         res = re.findall(r"of (\d+) results", div_results.text)
         if res:
-            num_results = ''.join(res[0])
+            num_results = int(''.join(res[0]).replace(',', ''))
             success = True
         else:
             num_results = '0'
@@ -116,12 +116,11 @@ def GetResultsSemanticScholar(search_term, start_date, end_date, proxyy):
     # print(sd,ed)
     results = sch.search_paper(search_term,year=f'{sd}-{ed}')
     if results:
-        num_results = str(results.total)
+        num_results = results.total
         success = True
     else:
         success = False
         num_results = '0'
-    # print(num_results)
     return num_results, success
 
 #####################################################################################################
@@ -225,7 +224,7 @@ def GetResultsGoogleScholar(search_term, start_date, end_date, proxyy):
         res = re.findall(r'About (\d{1,3}(?:,\d{3})*(?:\.\d+)?) results', div_results.text)
         # print(res,'gs')
         if res:
-            num_results = ''.join(res[0])
+            num_results = int(''.join(res[0]).replace(',', ''))
             success = True
         else:
             num_results = '0'
@@ -240,39 +239,16 @@ def GetResultsGoogleScholar(search_term, start_date, end_date, proxyy):
 ###------------------------------------- To plot the Data---- ------------------------------------###
 #####################################################################################################
 
-def plot_trend_chart(data, chart_title):
-    # Convert data to a format suitable for plotting
-    plot_data = []
-    for source, terms in data.items():
-        for term, values in terms.items():
-            for year, value in values.items():
-                try:
-                    plot_data.append({'Source': source, 'Term': term, 'Year': int(year), 'Value': int(value)})
-                except ValueError:
-                    # Handle cases where the value is not a valid integer
-                    pass
+def plot_interactive_graph(data, title):
+    labels = list(data.keys())
+    years = list(data[labels[0]]['Responsible AI'].keys())
+    values = list(data[labels[0]]['Responsible AI'].values())
 
-    # Create a DataFrame
-    df = pd.DataFrame(plot_data)
+    trace = go.Scatter(x=years, y=values, mode='lines+markers', name=labels[0])
+    layout = go.Layout(title=title, xaxis=dict(title='Year'), yaxis=dict(title='Number of Publications'))
+    fig = go.Figure(data=[trace], layout=layout)
 
-    # Create traces for each category
-    traces = []
-    # for term in df['Term'].unique():
-    #     term_data = df[df['Term'] == term]
-    #     for source in term_data['Source'].unique():
-    #         source_data = term_data[term_data['Source'] == source]
-    #         trace = go.Scatter(x=source_data['Year'], y=source_data['Value'], mode='lines+markers', name=f'{source} - {term}')
-    #         traces.append(trace)
-
-    # Create layout
-    layout = go.Layout(title=chart_title, xaxis=dict(title='Year'), yaxis=dict(title='Value'))
-
-    # Create figure
-    fig = go.Figure(data=traces, layout=layout)
-
-    # Show interactive graph
     fig.show()
-
 
 
 #####################################################################################################
@@ -400,19 +376,22 @@ if __name__ == "__main__":
     end_date = 2023
     ip = GetIP()
     proxies = {'http': ip, 'https': ip}
-    Data = get_results_parallel(search_term, start_date, end_date)
-    
+    # Data = get_results_parallel(search_term, start_date, end_date)
+    Data= {'Google Scholar': {'Responsible AI': {2023: 155000, 2022: 132000}}, 'Arix': {'Responsible AI': {2022: 189, 2023: 621}}, 'Semantic Scholar': {'Responsible AI': {2022: 77865, 2023: 79949}}, 'Google': {'Responsible AI': {2022: 1860000000, 2023: 4001000000}}}
     print(Data)
 
     Tempdata = Data['Google']
-    plot_trend_chart({'Google':Tempdata}, 'Google Search Results')
+    plot_interactive_graph({'Google':Tempdata}, 'Google Search Results')
     Tempdata = Data['Google Scholar']
-    plot_trend_chart({'Google Scholar':Tempdata}, 'Google Scholar Results')
+    plot_interactive_graph({'Google Scholar':Tempdata}, 'Google Scholar Results')
     Tempdata = Data['Arix']
-    plot_trend_chart({'Arix':Tempdata}, 'Google Search Results')
+    plot_interactive_graph({'Arix':Tempdata}, 'Arix Results')
     Tempdata = Data['Semantic Scholar']
-    plot_trend_chart({'Semantic Scholar':Tempdata}, 'Google Search Results')
+    plot_interactive_graph({'Semantic Scholar':Tempdata}, 'Semantic Scholar Results')
     end_time = time.time()
     total_time = end_time - start_time
 
     print(f"Total execution time: {total_time} seconds")
+
+
+https://medium.com/geekculture/rotate-ip-address-and-user-agent-to-scrape-data-a010216c8d0c
