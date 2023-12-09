@@ -60,6 +60,28 @@
             margin: 10px;
             background-color: #fff;
         }
+
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid blue;
+            border-bottom: 16px solid blue;
+            width: 120px;
+            height: 120px;
+            display: none;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -82,16 +104,19 @@
             <button type="button" onclick="rai_search_btn()" style="color: #818181;background-color: #d1dff4;border-color: #cfe8ff;"class="btn btn-primary btn-bordered add-more">
                 <span class="glyphicon glyphicon-plus"></span>
             </button>
-            <button>
-                <i class="fa fa-search" style="font-size:36px"></i>
+            <button onclick="sendData()">
+                <i class="fa fa-search" style="font-size:20px" ></i>
             </button>
             <br>
-            <input type="start Year" id="yearInput" name="yearInput" placeholder="Enter a year" min="1900" max="2100">
-            <i class="bi bi-search rai_search_btn" id="addInputButton" onclick="sendData()"></i>            
+            <input type="start Year" id="StartYearInput" name="yearInput" placeholder="Enter a year" min="1900" max="2100">
+            <i class="bi bi-search rai_search_btn" id="addInputButton"></i>            
 
-            <input type="End Year" id="yearInput" name="yearInput" placeholder="Enter a year" min="1900" max="2100">
-            <i class="bi bi-search rai_search_btn" id="addInputButton" onclick="sendData()"></i>          
+            <input type="End Year" id="EndYearInput" name="yearInput" placeholder="Enter a year" min="1900" max="2100">
+            <i class="bi bi-search rai_search_btn" id="addInputButton"></i>          
         </div>
+
+        <div class="loader"></div>
+
         <div class="results">
             <div class="result-item">
                 <h2>Search Term 1</h2>

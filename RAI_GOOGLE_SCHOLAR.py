@@ -128,40 +128,87 @@ def GetResultsSemanticScholar(search_term, start_date, end_date, proxyy):
 ###----------------------------- Getting Data from the Google ------------------------------------###
 #####################################################################################################
  
+
 def GetResultsGoogle(search_term, start_date, end_date, proxyy):
-     user_agent = GetRandomUser_Agent()
-     query_params = {'q': search_term, 'tbs': f'cdr:1,cd_min:{start_date},cd_max:{end_date}', 'tbm': ''}
-     url = "https://www.google.com/search?" + urlencode(query_params, doseq=True)
-    #  print(url)
-     opener = build_opener()
-     request = Request(url=url, headers={'User-Agent': user_agent,"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"})
-     handler = opener.open(request)
-     html = handler.read()
-     soup = BeautifulSoup(html, 'html.parser')
-     div_results = soup.find("div", {"id": "result-stats"})
-    #  print(div_results)
-     if not div_results:
-         return 0, False
+    total_results = 0
+    success_count = 0
+    user_agent = GetRandomUser_Agent()
+    query_params = {'q': search_term, 'tbs': f'cdr:1,cd_min:{start_date},cd_max:{end_date}', 'tbm': ''}
+    url = "https://www.google.com/search?" + urlencode(query_params, doseq=True)
+    opener = build_opener()
 
-     if div_results:
-         res = re.findall(r'(\d[\d,]*)\sresults', div_results.text)
-         if res:
-             num_results = ''.join(res[0])
-             success = True
-         else:
-             num_results = '0'
-             success = True
-     else:
-         success = False
-         num_results = '0'
+    for _ in range(10):
+        request = Request(url=url, headers={'User-Agent': user_agent, "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"})
+        handler = opener.open(request)
+        html = handler.read()
+        soup = BeautifulSoup(html, 'html.parser')
+        div_results = soup.find("div", {"id": "result-stats"})
 
-     return num_results, success
+        if not div_results:
+            print("No results found.")
+            return 0, False
+
+        res = re.findall(r'(\d[\d,]*)\sresults', div_results.text)
+        if res:
+            num_results = int(''.join(res[0]).replace(',', ''))
+            print(_ + 1, "-", num_results)
+            total_results += num_results
+            success_count += 1
+            success = True
+        else:
+            print("Unable to extract number of results.")
+            num_results = 0
+            success = False
+
+        sleep_time = random.uniform(0.6, 2)
+        print(sleep_time)
+        time.sleep(sleep_time)
+
+    return total_results, success_count
+
+# def GetResultsGoogle(search_term, start_date, end_date, proxyy):
+#      total_results = 0
+#      success_count = 0
+#      user_agent = GetRandomUser_Agent()
+#      query_params = {'q': search_term, 'tbs': f'cdr:1,cd_min:{start_date},cd_max:{end_date}', 'tbm': ''}
+#      url = "https://www.google.com/search?" + urlencode(query_params, doseq=True)
+#      opener = build_opener()
+#      for _ in range(10):
+#         request = Request(url=url, headers={'User-Agent': user_agent,"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"})
+#         handler = opener.open(request)
+#         html = handler.read()
+#         soup = BeautifulSoup(html, 'html.parser')
+#         div_results = soup.find("div", {"id": "result-stats"})
+#         #  print(div_results)
+#         if not div_results:
+#             return 0, False
+
+#         if div_results:
+#             continue
+#         res = re.findall(r'(\d[\d,]*)\sresults', div_results.text)
+#         if res:
+#             num_results = int(''.join(res[0]).replace(',', ''))
+#             print(_+1,"-",num_results)
+#             total_results += num_results
+#             success_count += 1
+#             success = True
+#         else:
+#             num_results = '0'
+#             total_results += 0
+#             success_count += 1
+#             success = True
+#         sleep_time = random.uniform(0.6, 2)
+#         print(sleep_time)
+#         time.sleep(sleep_time)
+#      return num_results, success
 
 #####################################################################################################
 ###------------------------ Getting Data from the Google Scholar ---------------------------------###
 #####################################################################################################
 
 def GetResultsGoogleScholar(search_term, start_date, end_date, proxyy):
+    total_results = 0
+    success_count = 0
     user_agent = GetRandomUserAgent()
     query_params = {'q': search_term, 'as_ylo': start_date, 'as_yhi': end_date}
     url = "https://scholar.google.com/scholar?as_vis=1&hl=en&as_sdt=1,5&" + urllib.parse.urlencode(query_params)
@@ -200,7 +247,7 @@ def plot_trend_chart(data, chart_title):
         for term, values in terms.items():
             for year, value in values.items():
                 try:
-                    plot_data.append({'Source': source, 'Term': term, 'Year': int(year), 'Value': int(value.replace(',', ''))})
+                    plot_data.append({'Source': source, 'Term': term, 'Year': int(year), 'Value': int(value)})
                 except ValueError:
                     # Handle cases where the value is not a valid integer
                     pass
@@ -210,12 +257,12 @@ def plot_trend_chart(data, chart_title):
 
     # Create traces for each category
     traces = []
-    for term in df['Term'].unique():
-        term_data = df[df['Term'] == term]
-        for source in term_data['Source'].unique():
-            source_data = term_data[term_data['Source'] == source]
-            trace = go.Scatter(x=source_data['Year'], y=source_data['Value'], mode='lines+markers', name=f'{source} - {term}')
-            traces.append(trace)
+    # for term in df['Term'].unique():
+    #     term_data = df[df['Term'] == term]
+    #     for source in term_data['Source'].unique():
+    #         source_data = term_data[term_data['Source'] == source]
+    #         trace = go.Scatter(x=source_data['Year'], y=source_data['Value'], mode='lines+markers', name=f'{source} - {term}')
+    #         traces.append(trace)
 
     # Create layout
     layout = go.Layout(title=chart_title, xaxis=dict(title='Year'), yaxis=dict(title='Value'))
@@ -232,8 +279,8 @@ def plot_trend_chart(data, chart_title):
 ###-------------------------------- Store the Data in the xlsx file ------------------------------###
 #####################################################################################################
 
-def save_to_excel(data, excel_path):
-    with open(csv_file_path, mode='w', newline='') as csv_file:
+def save_results_to_csv(data, excel_path):
+    with open(excel_path, mode='w', newline='') as csv_file:
         fieldnames = ['Query', 'Date', 'Source', 'Num_Results', 'Success']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
@@ -311,8 +358,6 @@ def get_range_and_plot(search_term, start_date, end_date):
     fp.close()
 
 
-
-
 def get_results_parallel(search_term, start_date, end_date):
     results = []
     formatted_results = {}
@@ -322,14 +367,11 @@ def get_results_parallel(search_term, start_date, end_date):
         future_to_query.update({executor.submit(GetResultsGoogleScholar, q, date, date, proxies): (q, date, "Google Scholar") for q in search_term for date in range(start_date, end_date + 1)})
         future_to_query.update({executor.submit(GetResultsArix, q, date, date, proxies): (q, date, "Arix") for q in search_term for date in range(start_date, end_date + 1)})
         future_to_query.update({executor.submit(GetResultsSemanticScholar, q, date, date, proxies): (q, date, "Semantic Scholar") for q in search_term for date in range(start_date, end_date + 1)})
-        
-        # Iterate over completed futures
         for future in as_completed(future_to_query):
             q, date, source = future_to_query[future]
             try:
                 num_results, success = future.result()
                 results.append((q, date, source, num_results, success))
-
                 # Update formatted_results dictionary
                 if source not in formatted_results:
                     formatted_results[source] = {}
@@ -340,23 +382,28 @@ def get_results_parallel(search_term, start_date, end_date):
             except Exception as e:
                 print(f"Exception for {q} - {date} - {source}: {e}")
 
+
     # Process the results as needed
     for q, date, source, num_results, success in results:
         if not success:
             print(f"Failed to get results for {q} - {date} - {source}")
-    print(formatted_results)
+    # Save results to CSV
+    # csv_file_path = 'output.csv'
+    # save_results_to_csv(results, csv_file_path)
     return formatted_results
 
 if __name__ == "__main__":
     start_time = time.time()
-    search_term = ['Responsible AI','RAI','Ethical AI','AI Governance','AI Accountability','Responsible AI','AI Privacy', 'Responsible Geographic Information Systems','Geographic Information Systems','Spatial Analysis','Cartography','GIS Mapping','GIS Privacy','Fair GIS Applications','GIS Impact Assessment','Responsible Geospatial Technology','Ethical Cartography']
-    start_date = 2013
+    search_term = ['Responsible AI']
+    # search_term = ['Responsible AI','RAI','Ethical AI','AI Governance','AI Accountability','Responsible AI','AI Privacy', 'Responsible Geographic Information Systems','Geographic Information Systems','Spatial Analysis','Cartography','GIS Mapping','GIS Privacy','Fair GIS Applications','GIS Impact Assessment','Responsible Geospatial Technology','Ethical Cartography']
+    start_date = 2022
     end_date = 2023
     ip = GetIP()
     proxies = {'http': ip, 'https': ip}
     Data = get_results_parallel(search_term, start_date, end_date)
     
     print(Data)
+
     Tempdata = Data['Google']
     plot_trend_chart({'Google':Tempdata}, 'Google Search Results')
     Tempdata = Data['Google Scholar']
@@ -367,4 +414,5 @@ if __name__ == "__main__":
     plot_trend_chart({'Semantic Scholar':Tempdata}, 'Google Search Results')
     end_time = time.time()
     total_time = end_time - start_time
+
     print(f"Total execution time: {total_time} seconds")

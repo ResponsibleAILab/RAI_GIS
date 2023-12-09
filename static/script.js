@@ -52,47 +52,103 @@ input.type = 'text';
 input.placeholder = 'Enter text';
 inputContainer.appendChild(input);
 
-function rai_search_btn(){
-    if (input_textbox_count==5){
+function rai_search_btn() {
+    if (input_textbox_count == 5) {
         alert("Maximum fields reached");
     }
     var inputContainer = document.getElementById('Rai_inputContainer');
-    input_textbox_count+=1;
-    inputContainer.innerHTML = inputContainer.innerHTML + '\n                <input type="text" class="rai_search" id ="rai_search_'+input_textbox_count+'" ></input>'
-} 
+    input_textbox_count += 1;
+    inputContainer.innerHTML = inputContainer.innerHTML + '\n                <input type="text" class="rai_search" id ="rai_search_' + input_textbox_count + '" ></input>'
+}
 
 
 
 function sendData() {
     // Read the whole Input fields
+    var Loader = document.getElementById('loader');
+    if (Loader) {
+        Loader.style.display = "block";
+    }
     var inputContainer = document.getElementById('Rai_inputContainer');
+    var startData = document.getElementById('StartYearInput').value;
+    var endData = document.getElementById('EndYearInput').value;
+
     // define the Regular expression
     var regex = /id="rai_search_(\d+)"/g;
     var matchedIDs = [];
-    var trends = {};
-    matchedIDs = inputContainer.innerHTML.match(regex)
+    var trends = [];
+    matchedIDs = inputContainer.innerHTML.match(regex);
 
-    // Dynamic values are stored
+    // Dynamic values are stored in a list
     for (var i = 1; i <= matchedIDs.length; i++) {
         var inputValue = document.getElementById('rai_search_' + i).value;
         if (inputValue.trim() !== '') {
-            trends['Trend' + i] = inputValue;
+            trends.push(inputValue);
         } else {
             break; // Exit the loop if the value is empty
         }
     }
+
+    console.log(trends);
+
     fetch('/api/receive_data', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(trends),
+        body: JSON.stringify({ trends: trends, startDate: startData, endDate: endData }),
     })
     .then(response => response.json())
     .then(data => {
         console.log(data.message);
     });
-}  
-window.addEventListener('load', function() {
+    Loader.style.display = "none";
+}
+
+
+
+
+// function sendData() {
+//     // Read the whole Input fields
+//     var inputContainer = document.getElementById('Rai_inputContainer');
+//     var startData = document.getElementById('StartYearInput').value;
+//     var endData = document.getElementById('EndYearInput').value;
+
+//     // define the Regular expression
+//     var regex = /id="rai_search_(\d+)"/g;
+//     var matchedIDs = [];
+//     var trends = {};
+//     matchedIDs = inputContainer.innerHTML.match(regex);
+
+//     // Dynamic values are stored
+//     for (var i = 1; i <= matchedIDs.length; i++) {
+//         var inputValue = document.getElementById('rai_search_' + i).value;
+//         if (inputValue.trim() !== '') {
+//             trends['Trend' + i] = inputValue;
+//         } else {
+//             break; // Exit the loop if the value is empty
+//         }
+//     }
+
+//     // Include start year and end year in trends object
+//     trends['StartYear'] = startData;
+//     trends['EndYear'] = endData;
+
+//     console.log(trends);
+
+//     fetch('/api/receive_data', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify(trends),
+//     })
+//         .then(response => response.json())
+//         .then(data => {
+//             console.log(data.message);
+//         });
+// }
+
+window.addEventListener('load', function () {
     console.log('Hi');
 });
