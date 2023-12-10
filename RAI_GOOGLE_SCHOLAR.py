@@ -394,9 +394,9 @@ def get_results_parallel(search_term, start_date, end_date):
 
 if __name__ == "__main__":
     start_time = time.time()
-    search_term = ['Responsible AI']
-    # search_term = ['Responsible AI','RAI','Ethical AI','AI Governance','AI Accountability','Responsible AI','AI Privacy', 'Responsible Geographic Information Systems','Geographic Information Systems','Spatial Analysis','Cartography','GIS Mapping','GIS Privacy','Fair GIS Applications','GIS Impact Assessment','Responsible Geospatial Technology','Ethical Cartography']
-    start_date = 2022
+    # search_term = ['Responsible AI']
+    search_term = ['Responsible AI','RAI','Ethical AI','AI Governance','AI Accountability','Responsible AI','AI Privacy', 'Responsible Geographic Information Systems','Geographic Information Systems','Spatial Analysis','Cartography','GIS Mapping','GIS Privacy','Fair GIS Applications','GIS Impact Assessment','Responsible Geospatial Technology','Ethical Cartography']
+    start_date = 2013
     end_date = 2023
     ip = GetIP()
     proxies = {'http': ip, 'https': ip}
