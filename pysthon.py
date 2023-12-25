@@ -1,5 +1,12 @@
-from googlesearch import search
+import requests
 
-query = "something"
-for result in search(query, num=10, stop=10, pause=2):
-    print("Title: " + result)
+def send_request(session, proxy):
+   try:
+       response = session.get('http://httpbin.org/ip', proxies={'http': f"http://{proxy}"})
+       print(response.json())
+   except:
+       pass
+
+if __name__ == "__main__":
+   with open('list_proxy.txt', 'r') as file:
+       proxies = file.readlines()
