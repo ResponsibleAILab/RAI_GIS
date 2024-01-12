@@ -146,8 +146,8 @@ def GetResultsGoogle(search_term, start_date, end_date):
     ip = GetIP()
     proxies = {'http': 'http://144.48.190.0:8080', 'https': 'https://144.48.190.0:8080'}
     proxy_handler = ProxyHandler(proxies)
-    # opener = build_opener()
-    opener = build_opener(proxy_handler, HTTPCookieProcessor())
+    opener = build_opener()
+    # opener = build_opener(proxy_handler, HTTPCookieProcessor())
     
     for _ in range(10):
         request = Request(url=url, headers={'User-Agent': user_agent, "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"})
@@ -158,7 +158,7 @@ def GetResultsGoogle(search_term, start_date, end_date):
 
         if not div_results:
             print("No results found.")
-            return 0, False
+            return total_results, False
 
         res = re.findall(r'(\d[\d,]*)\sresults', div_results.text)
         if res:
@@ -279,7 +279,7 @@ def save_results_to_csv(data, excel_path):
         for q, date, source, num_results, success in results:
             writer.writerow({'Query': q, 'Date': date, 'Source': source, 'Num_Results': num_results, 'Success': success})
 
-    print(f"Results saved to {csv_file_path}")
+    print(f"Results saved to {excel_path}")
 
 #####################################################################################################
 ## Main function calls each method iterates each Query between the range
@@ -303,24 +303,25 @@ def get_range_and_plot(search_term, start_date, end_date):
             SDirect_num_results, SDirect_success = GetResultsSemanticScholar(q, date, date)
             if not google_success and google_success:
                 print("Too many requests passed to Google. Try again after some time.")
-                print(Data)
+                google_year_results = "{0},{1}".format(date, google_num_results)
                 break
             if not Scholar_success and Scholar_success:
                 print("Too many requests passed to Google Scholar. Try again after some time.")
-                print(Data)
                 break
             if not Arixv_success and Arixv_success:
                 print("Too many requests passed to Arix. Try again after some time.")
-                print(Data)
                 break
             if not SDirect_success and SDirect_success:
                 print("Too many requests passed to Arix. Try again after some time.")
-                print(Data)
                 break
             google_year_results = "{0},{1}".format(date, google_num_results)
             Scholar_year_results = "{0},{1}".format(date, Scholar_num_results)
             Arixv_year_results = "{0},{1}".format(date, Arixv_num_results)
             SDirect_year_results = "{0},{1}".format(date, SDirect_num_results)
+            print(google_year_results)
+            print(Scholar_year_results)
+            print(Arixv_year_results)
+            print(SDirect_year_results)
             Data['Google'][q][date] = google_num_results
             Data['Google Scholar'][q][date] = Scholar_num_results
             Data['Arix'][q][date] = Arixv_num_results
@@ -335,10 +336,8 @@ def get_range_and_plot(search_term, start_date, end_date):
     print(Data)
     # list_years = list(Data['Arix']['Responsible AI'].keys())
     csv_file_path = 'output.csv'
-
-
     excel_path = 'trends_data.xlsx'
-    save_to_excel(Data, excel_path)
+    save_results_to_csv(Data, excel_path)
     fp.close()
 
 
@@ -376,15 +375,15 @@ def get_results_parallel(search_term, start_date, end_date):
         if not success:
             print(f"Failed to get results for {q} - {date} - {source}")
     # Save results to CSV
-    # csv_file_path = 'output.csv'
-    # save_results_to_csv(results, csv_file_path)
+    csv_file_path = 'output.csv'
+    save_results_to_csv(results, csv_file_path)
     return formatted_results
 
 if __name__ == "__main__":
     start_time = time.time()
-    search_term = ['Responsible AI','RAI','Ethical AI','AI Governance','AI Accountability','Responsible AI','AI Privacy', 'Responsible Geographic Information Systems','Geographic Information Systems','Spatial Analysis','Cartography','GIS Mapping','GIS Privacy','Fair GIS Applications','GIS Impact Assessment','Responsible Geospatial Technology','Ethical Cartography']
+    search_term = ['Responsible AI','RAI','Ethical AI','AI Governance','AI Accountability','AI Privacy', 'Responsible Geographic Information Systems','Geographic Information Systems','Spatial Analysis','Cartography','GIS Mapping','Fair GIS Applications']
     start_date = 2013
-    end_date = 2018
+    end_date = 2013
     ip = GetIP()
 
     Data = get_range_and_plot(search_term, start_date, end_date)
