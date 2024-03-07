@@ -32,31 +32,43 @@ sleep_time = random.uniform(0.6, 2)
 ###---------------------------- Get User agent for Google search ---------------------------------###
 #####################################################################################################
 
+
 def GetRandomUser_Agent():
-    user_agents = [
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:97.0) Gecko/20100101 Firefox/97.0',
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59',
-    ]
-    return random.choice(user_agents)
+    with open('useragents.json', 'r') as file:
+        user_agents_data = json.load(file)
+
+    randomize_data = user_agents_data.get('randomize', {})
+    browsers_data = user_agents_data.get('browsers', {})
+
+    agent_keys = list(randomize_data.keys())
+    random_key = random.choice(agent_keys)
+    selected_browser = randomize_data.get(random_key, 'chrome')
+
+    user_agents = browsers_data.get(selected_browser, [])
+
+    return random.choice(user_agents)   
 
 #####################################################################################################
 ###------------------------------- Get User agent for Requests -----------------------------------###
 #####################################################################################################
 
 def GetRandomUserAgent():
-    user_agents = [
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:97.0) Gecko/20100101 Firefox/97.0',
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59',
-        'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; AS; rv:11.0) like Gecko',
-        'Mozilla/5.0 (Linux; Android 10; SM-G975U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Mobile Safari/537.36',
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36 OPR/79.0.4143.34',
-        'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:91.0) Gecko/20100101 Thunderbird/91.7.0',
-    ]
-    return random.choice(user_agents)
+    with open('useragents.json', 'r') as file:
+        user_agents_data = json.load(file)
+
+    randomize_data = user_agents_data.get('randomize', {})
+    browsers_data = user_agents_data.get('browsers', {})
+
+    agent_keys = list(randomize_data.keys())
+    random_key = random.choice(agent_keys)
+    selected_browser = randomize_data.get(random_key, 'chrome')
+
+    user_agents = browsers_data.get(selected_browser, [])
+
+    return random.choice(user_agents) 
   
 Data = {'Arix': {}, 'Google': {},'Google Scholar':{},'Sematic Scholar':{}}
+
 #####################################################################################################
 ###------------------------------- Getting Data from the Arxiv -----------------------------------####
 #####################################################################################################
@@ -146,36 +158,7 @@ def GetResultsGoogle(search_term, start_date, end_date):
     user_agent = GetRandomUser_Agent()
     query_params = {'q': search_term, 'tbs': f'cdr:1,cd_min:{start_date},cd_max:{end_date}', 'tbm': ''}
     url = "https://www.google.com/search?" + urlencode(query_params, doseq=True)
-    # proxy_url = 'http://customer-%s-cc-%s:%s@pr.oxylabs.io:7777' % (username, 'US',password)
-    # proxies = {'http': proxy_url, 'https': proxy_url}
-    # proxy_handler = ProxyHandler(proxies)
-    # opener = build_opener(proxy_handler, HTTPCookieProcessor())
     opener = build_opener()    
-    # request = Request(url=url, headers={'User-Agent': user_agent, "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"})
-    # handler = opener.open(request)
-    # html = handler.read()
-    # soup = BeautifulSoup(html, 'html.parser')
-    # div_results = soup.find("div", {"id": "result-stats"})
-
-    # if not div_results:
-    #     print("No results found.")
-    #     return total_results, False
-
-    # res = re.findall(r'(\d[\d,]*)\sresults', div_results.text)
-    # if res:
-    #     num_results = int(''.join(res[0]).replace(',', ''))
-    #     total_results += num_results
-    #     success_count += 1
-    #     success = True
-    # else:
-    #     print("Unable to extract number of results.")
-    #     num_results = 0
-    #     success = False
-
-    # sleep_time = random.uniform(0.6, 2)
-    # time.sleep(sleep_time)
-
-    # return total_results, success_count
     for _ in range(10):
         request = Request(url=url, headers={'User-Agent': user_agent, "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"})
         handler = opener.open(request)
@@ -414,10 +397,7 @@ if __name__ == "__main__":
     start_date = 2013
     end_date = 2023
 
-    # Data = get_range_and_plot(search_term, start_date, end_date)
     Data = get_results_parallel(search_term, start_date, end_date)
-    # csv_file_path = 'output.csv'
-    # save_results_to_csv(Data, csv_file_path)
 
     Tempdata = Data['Google']
     plot_interactive_graph({'Google':Tempdata}, 'Google Search Results')
